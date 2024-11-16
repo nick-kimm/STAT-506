@@ -200,3 +200,56 @@ simplify(r1)
 simplify(r2)
 simplify(r3)
 ```
+
+#part c:
+
+Checking if validator works, not allowing denominator to be zero and other edge cases
+
+```{r,error=TRUE}
+rational(40,0)
+rational("t","s")
+```
+
+##Problem 2
+
+```{r}
+library(plotly)
+
+art <- read.csv("/Users/nicholaskim/Documents/STAT 506/HW4/df_for_ml_improved_new_market.csv")
+```
+
+#part a:
+Does the distribution of genre of sales change over the years?
+
+First creating a singly column vector that'll store the genre information rather than split amoungst 5. Will also manually assign artworks that overlap in both painting and other to be assigned to only painting.
+```{r}
+art$Genre___Others[art$Genre___Painting == 1] <- 0
+art$genre <- "Photography"
+art$genre[art$Genre___Print == 1] <- "Print"
+art$genre[art$Genre___Sculpture == 1] <- "Sculpture"
+art$genre[art$Genre___Painting == 1] <- "Painting"
+art$genre[art$Genre___Others == 1] <- "Other"
+table(art$genre)
+```
+
+
+```{r}
+yeargenre <- with(art, table(year, genre))
+prop_art <- yeargenre/apply(yeargenre,1,sum)
+prop_art <- prop_art[, c("Painting", "Sculpture", "Photography", "Print", "Other")]
+
+plot_ly(x=~year, y=~Freq*100, color=~genre,data=data.frame(prop_art),type="bar")|>
+  layout(yaxis = list(title = 'Percentage (%)'),barmode = "stack") 
+```
+
+From the plot above there seems to be a decrease in the proportion of paintings with a rise in photography and print.  
+
+#part b:
+Is there a change in the sales price in USD over time?
+How does the genre affect the change in sales price over time?
+
+```{r}
+
+```
+
+
