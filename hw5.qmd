@@ -23,13 +23,7 @@ Setting constructor and Validity
 #' 
 setClass("rational",
           slots = c(numerator = "numeric",
-                    denominator = "numeric"),
-          validity = function(object) {
-            if (object@denominator == 0) {
-              return("Denominator cannot be zero.")
-            }
-            TRUE
-          }
+                    denominator = "numeric")
 )
 
 rational <- function(n, d) {
@@ -38,6 +32,14 @@ rational <- function(n, d) {
   }
   new("rational", numerator = n, denominator = d)
 }
+
+setValidity("rational",
+            function(object){
+              if (object@denominator == 0){
+                return("Denominator can't be zero")
+              }
+              return(TRUE)
+            })
 ```
 
 Show method
@@ -73,25 +75,96 @@ gcd<-function(a,b){
 }
 
 #' Simplify
-#'
+#'Will reduce the rational down to its simplified form. This will be found by dividing the numerator by the gcd of the numerator and denominator and similarly for the denominator.
 #' @param object 
 #'
 #' @return simplified rational of the input
+#' 
 setGeneric("simplify",
            function(object){
-             n<-object@numerator/gcd(object)
-             d<-object@denominator/gcd(object)
-             return(str(n/d))
+             n<-object@numerator/gcd(object@numerator,object@denominator)
+             d<-object@denominator/gcd(object@numerator,object@denominator)
+             return(paste(n,"/",d, sep=""))
            }
 )
 ```
 
 ```{r}
+#' Quotient
+#' Will return the quotient of the rational number to a specified digit place. The default digit length will be set at 6.
+#'
+#' @param object 
+#' @param digits 
+#'
+#' @return Quotient of rational to a specified digit place
+#' 
 setGeneric("quotient",
-           function(object, digits){
-             q<-object@numerator/object@denominator
-             return(print(q,digits=digits))
+           function(object, digits=6){
+             if (is.numeric(digits)==FALSE){
+               return("Digit is not a numeric value")
+             }else{
+               q<-object@numerator/object@denominator
+               return(print(q,digits=digits))
+            }
            })
+```
+
+```{r}
+#' Rational Addition
+#' Will make sure the input are both in the rational class and then return the added value of the two. This will be done by calling a new rational where the numerator is the added value of the numerators and the denominator is found in the same fashion.
+#'
+#' @param e1 rational. 
+#' @param e2 rational. 
+#'
+#' @return Added value of the two  rational numbers
+setMethod("+", signature(e1 = "rational",
+                         e2 = "rational"),
+          function(e1,e2){
+            newnum <- rational(e1@numerator + e2@numerator, e1@denominator + e2@denominator)
+            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+          })
+
+#'Rational Subtraction 
+#'Will make sure the input are both in the rational class and then return the subtracted value of the two. This will be done by calling a new rational where the numerator is the subtracted value of the numerators and the denominator is found in the same fashion.
+#'
+#' @param e1 rational. 
+#' @param e2 rational. 
+#'
+#' @return Subtracted value of the two rational numbers
+setMethod("-", signature(e1 = "rational",
+                         e2 = "rational"),
+          function(e1,e2){
+            newnum <- rational(e1@numerator - e2@numerator, e1@denominator - e2@denominator)
+            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+          })
+
+#' Rational Multiplication
+#' Will make sure the input are both in the rational class and then return the multiplied value of the two. This will be done by calling a new rational where the numerator is the multiplied value of the numerators and the denominator is found in the same fashion.
+#'
+#' @param e1 rational. 
+#' @param e2 rational. 
+#'
+#' @return Multiplied rational of two rationals
+setMethod("*", signature(e1 = "rational",
+                         e2 = "rational"),
+          function(e1,e2){
+            newnum <- rational(e1@numerator * e2@numerator, e1@denominator * e2@denominator)
+            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+          })
+
+#' Rational Division
+#' Will make sure the input are both in the rational class and then return the divided value of the two. Since division of rationals is just multiplication of the reciprocal of one of the rationals the value will be found by multipliying the numerator of one with denominator of the other and vice versa.
+#'
+#' @param e1 rational. 
+#' @param e2 rational. 
+#'
+#' @return Divided rational of the two
+setMethod("/", signature(e1 = "rational",
+                         e2 = "rational"),
+          function(e1,e2){
+            newnum <- rational(e1@numerator * e2@denominator, e1@denominator * e2@numerator)
+            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+          })
 ```
 
 
@@ -99,7 +172,31 @@ setGeneric("quotient",
 
 Setting up class objects
 ```{r}
-r1<-rational(25,6)
-r1
+r1 <- rational(24,6)
+r2 <- rational(7,230)
+r3 <- rational(0,4)
 ```
 
+Checking code in hw
+```{r,error=TRUE}
+r1
+r3
+r1 + r2
+r1 - r2
+r1 * r2
+r1 / r2
+r1 + r3
+r1 * r3
+r2 / r3
+quotient(r1)
+quotient(r2)
+quotient(r2, digits = 3)
+quotient(r2, digits = 3.14)
+quotient(r2, digits = "avocado")
+q2 <- quotient(r2, digits = 3)
+q2
+quotient(r3)
+simplify(r1)
+simplify(r2)
+simplify(r3)
+```
