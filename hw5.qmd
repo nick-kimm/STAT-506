@@ -12,7 +12,7 @@ Creating a class to represent rational numbers
 
 #part a:
 
-Setting constructor
+Setting constructor and Validity 
 ```{r}
 #' Rational class
 #' 
@@ -23,18 +23,21 @@ Setting constructor
 #' 
 setClass("rational",
           slots = c(numerator = "numeric",
-                    denominator = "numeric")
+                    denominator = "numeric"),
+          validity = function(object) {
+            if (object@denominator == 0) {
+              return("Denominator cannot be zero.")
+            }
+            TRUE
+          }
 )
-```
 
-Setting Validity checker
-```{r}
-setValidity("rational",function(input){
-  if (input@denominator == 0){
-    stop(paste("@denominator = ", object@denominator, "needs to be nonzero integer"))
+rational <- function(n, d) {
+  if (d == 0) {
+    stop("Denominator cannot be zero.")
   }
-  return(TRUE)
-})
+  new("rational", numerator = n, denominator = d)
+}
 ```
 
 Show method
@@ -53,6 +56,50 @@ setMethod("show","rational",
 
 Simplify method
 ```{r}
-setMethod
+#' Greatest Common Divisor
+#'
+#'Will find the greatest common divisor for the given numerator and denominator values in the "rational" object. The function will use the Euclidean method, which is a recursive solution to get the gcd. This algorithm will continiously take the mod of the numbers until the remainder is zero, where a will store the value of previous operation. 
+#'
+#' @param a,b 
+#'
+#' @return integer of the gcd
+#' 
+gcd<-function(a,b){
+  if (b == 0){
+    return(abs(a))
+  }else{
+    return(gcd(b,a%%b))
+    }
+}
+
+#' Simplify
+#'
+#' @param object 
+#'
+#' @return simplified rational of the input
+setGeneric("simplify",
+           function(object){
+             n<-object@numerator/gcd(object)
+             d<-object@denominator/gcd(object)
+             return(str(n/d))
+           }
+)
+```
+
+```{r}
+setGeneric("quotient",
+           function(object, digits){
+             q<-object@numerator/object@denominator
+             return(print(q,digits=digits))
+           })
+```
+
+
+#part b:
+
+Setting up class objects
+```{r}
+r1<-rational(25,6)
+r1
 ```
 
