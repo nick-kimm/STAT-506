@@ -6,19 +6,53 @@ format: html
 
 Link to my [github]("www.github.com/nick-kimm/STAT-506") repository 
 
-## Running Code
+## Problem 1
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Creating a class to represent rational numbers
 
+#part a:
+
+Setting constructor
 ```{r}
-1 + 1
+#' Rational class
+#' 
+#'Defining a class object that'll take in two integer inputs, one for the numerator and one for the denominator. This will be used to return a rational number given the input.
+#'
+#'
+#' @return rational number
+#' 
+setClass("rational",
+          slots = c(numerator = "numeric",
+                    denominator = "numeric")
+)
 ```
 
-You can add options to executable code like this 
-
+Setting Validity checker
 ```{r}
-#| echo: false
-2 * 2
+setValidity("rational",function(input){
+  if (input@denominator == 0){
+    stop(paste("@denominator = ", object@denominator, "needs to be nonzero integer"))
+  }
+  return(TRUE)
+})
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Show method
+```{r}
+setMethod("show","rational",
+          function(object) {
+            cat("Numerator :")
+            str(object@numerator)
+            cat("\n")
+            cat("Denominator :")
+            str(object@denominator)
+            cat("\n")
+            return(invisible(object))
+})
+```
+
+Simplify method
+```{r}
+setMethod
+```
+
