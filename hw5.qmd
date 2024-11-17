@@ -47,7 +47,7 @@ Show method
 setMethod("show","rational",
           function(object) {
             cat("Numerator :")
-            str(object@numerator)
+            str(object@numerator)  
             cat("\n")
             cat("Denominator :")
             str(object@denominator)
@@ -111,7 +111,7 @@ setGeneric("quotient",
 
 ```{r}
 #' Rational Addition
-#' Will make sure the input are both in the rational class and then return the added value of the two. This will be done by calling a new rational where the numerator is the added value of the numerators and the denominator is found in the same fashion.
+#' Will make sure the input are both in the rational class and then return the added value of the two. This will be done by finding the least common multiple and letting that be our denominator. Then we'd multiply the numerator by the lcm divided by the denominator then add the two new numerator values together. Will then reduce the value down to its simplest form
 #'
 #' @param e1 rational. 
 #' @param e2 rational. 
@@ -120,12 +120,15 @@ setGeneric("quotient",
 setMethod("+", signature(e1 = "rational",
                          e2 = "rational"),
           function(e1,e2){
-            newnum <- rational(e1@numerator + e2@numerator, e1@denominator + e2@denominator)
-            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+            lcm <- abs(e1@denominator)*(e2@denominator/gcd(e1@denominator,e2@denominator))
+            new_numerator <- (lcm/e1@denominator)*e1@numerator + (lcm/e2@denominator)*e2@numerator
+            new_denominator <- lcm
+            newnum <- rational(new_numerator,new_denominator)
+            return(simplify(newnum))
           })
 
 #'Rational Subtraction 
-#'Will make sure the input are both in the rational class and then return the subtracted value of the two. This will be done by calling a new rational where the numerator is the subtracted value of the numerators and the denominator is found in the same fashion.
+#'Will make sure the input are both in the rational class and then return the subtracted value of the two. This will be done by finding the least common multiple and letting that be our denominator. Then we'd multiply the numerator by the lcm divided by the denominator of then subtract the two new numerator values together. Will then reduce the value down to its simplest form
 #'
 #' @param e1 rational. 
 #' @param e2 rational. 
@@ -134,12 +137,15 @@ setMethod("+", signature(e1 = "rational",
 setMethod("-", signature(e1 = "rational",
                          e2 = "rational"),
           function(e1,e2){
-            newnum <- rational(e1@numerator - e2@numerator, e1@denominator - e2@denominator)
-            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+            lcm <- abs(e1@denominator)*(e2@denominator/gcd(e1@denominator,e2@denominator))
+            new_numerator <- (lcm/e1@denominator)*e1@numerator - (lcm/e2@denominator)*e2@numerator
+            new_denominator <- lcm
+            newnum <- rational(new_numerator,new_denominator)
+            return(simplify(newnum))
           })
 
 #' Rational Multiplication
-#' Will make sure the input are both in the rational class and then return the multiplied value of the two. This will be done by calling a new rational where the numerator is the multiplied value of the numerators and the denominator is found in the same fashion.
+#' Will make sure the input are both in the rational class and then return the multiplied value of the two. This will be done by calling a new rational where the numerator is the multiplied value of the numerators and the denominator is found in the same fashion. Will then reduce the value down to its simplest form
 #'
 #' @param e1 rational. 
 #' @param e2 rational. 
@@ -149,11 +155,11 @@ setMethod("*", signature(e1 = "rational",
                          e2 = "rational"),
           function(e1,e2){
             newnum <- rational(e1@numerator * e2@numerator, e1@denominator * e2@denominator)
-            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+            return(simplify(newnum))
           })
 
 #' Rational Division
-#' Will make sure the input are both in the rational class and then return the divided value of the two. Since division of rationals is just multiplication of the reciprocal of one of the rationals the value will be found by multipliying the numerator of one with denominator of the other and vice versa.
+#' Will make sure the input are both in the rational class and then return the divided value of the two. Since division of rationals is just multiplication of the reciprocal of one of the rationals the value will be found by multipliying the numerator of one with denominator of the other and vice versa. Will then reduce the value down to its simplest form
 #'
 #' @param e1 rational. 
 #' @param e2 rational. 
@@ -163,7 +169,7 @@ setMethod("/", signature(e1 = "rational",
                          e2 = "rational"),
           function(e1,e2){
             newnum <- rational(e1@numerator * e2@denominator, e1@denominator * e2@numerator)
-            return(paste(newnum@numerator,"/",newnum@denominator,sep=""))
+            return(simplify(newnum))
           })
 ```
 
@@ -175,6 +181,10 @@ Setting up class objects
 r1 <- rational(24,6)
 r2 <- rational(7,230)
 r3 <- rational(0,4)
+```
+
+```{r}
+abs(r1@denominator)*(r2@denominator/gcd(r1@denominator,r2@denominator))
 ```
 
 Checking code in hw
