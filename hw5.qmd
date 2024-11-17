@@ -249,7 +249,102 @@ Is there a change in the sales price in USD over time?
 How does the genre affect the change in sales price over time?
 
 ```{r}
+save <- list()
+index = 1
+for (i in 1997:2012){
+  price_yr <- art[art$year==i,"price_usd"]
+  save[[index]] <- data.frame(year = i,
+                               price = price_yr[price_yr > quantile(price_yr,.95)])
+  index = index + 1
+}
+
+top_price <- do.call(rbind, save)
+
+artmedian <- aggregate(art$price_usd, by = list(art$year),
+                       FUN = median, na.rm = TRUE)
+names(artmedian) <- c("year", "price")
+
+overall<-plot_ly(data = top_price, x = ~year, y = ~price, type = "box",
+        name = "Boxplot") |>
+  add_lines(data = artmedian, x = ~year, y = ~price, name = "Median",
+            hovertemplate = paste(
+              '<b>Year</b>: %{x}<br>',
+              '<b>Median Price</b>: $%{y:.2f}<br>',
+              '<extra></extra>'
+            )) |>
+  layout(
+    title = "Top 5% of Sales Price of Art over the Years",
+    xaxis = list(title = "Year"),
+    yaxis = list(title = "Price (USD)")
+  )
+overall
+```
+
+```{r}
+library(dplyr)
+artmedian <- aggregate(art$price_usd, by = list(art$year, art$genre),
+                   FUN = median, na.rm = TRUE)
+names(artmedian) <- c("year", "genre", "price")
+art975 <- aggregate(art$price_usd, by = list(art$year, art$genre),
+                   FUN = quantile, .975, na.rm = TRUE)
+names(art975) <- c("year", "genre", "price")
+
+artmedian$genre <- factor(artmedian$genre, levels = rev(unique(artmedian$genre)))
+art975$genre <- factor(art975$genre, levels = rev(unique(art975$genre)))
+artcombine <- bind_rows(
+  artmedian %>% mutate(measure = "Median"),
+  art975 %>% mutate(measure = "97.5%")
+)
+
+bygenre<-plot_ly(x=~year,y=~price,data = artcombine,color=~genre,type="scatter",mode="lines",linetype = ~measure,
+        hovertemplate = paste(
+              '<b>Year</b>: %{x}<br>',
+              '<b>Price</b>: $%{y}<br>'))|>
+  layout(title="Change in Art Price over the Years by Genre",
+         yaxis=list(title="Price (USD)"),
+         xaxis=list(title="Year"))
+bygenre
+```
+
+```{r}
+combined_graph <- plot_ly() |>
+  add_trace(data = top_price, x = ~year, y = ~price, type = "box",name = "Boxplot",visible = TRUE) |>
+  add_trace(x=~year,y=~price,data = artcombine,color=~genre,type="scatter",mode="lines",linetype = ~measure, visible = FALSE)
+
+combined_graph|>layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Price (USD)"),
+  updatemenus = list(
+  list(
+    y = 1,
+    buttons = list(
+      list(method = "update",
+           args = list(list(visible =  list(TRUE, FALSE)),
+                       list(title = list(title = "Top 5% of Sales Price of Art over the Years"))),
+           label = "overall"),
+
+      list(method = "update",
+           args = list(list(visible =  list(FALSE, TRUE)),
+                       list(title = list(title = "Change in Art Price over the Years by Genre"))),
+           label = "genre"))
+  )
+))
 
 ```
+  
+  
+##Problem 3
+
+```{r}
+library(data.table)
+library(nycflights13)
+```
+
+#part a:
+```{r}
+
+
+```
+
 
 
