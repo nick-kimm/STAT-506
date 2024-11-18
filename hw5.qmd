@@ -329,12 +329,12 @@ combined_graph|>layout(
     y = 1,
     buttons = list(
       list(method = "update",
-           args = list(list(visible =  list(TRUE, FALSE)),
+           args = list(list(visible =  list(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
                        list(title = list(title = "Top 5% of Sales Price of Art over the Years"))),
            label = "overall"),
 
       list(method = "update",
-           args = list(list(visible =  list(FALSE, TRUE)),
+           args = list(list(visible =  list(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)),
                        list(title = list(title = "Change in Art Price over the Years by Genre"))),
            label = "genre"))
   )
@@ -352,9 +352,48 @@ library(nycflights13)
 
 #part a:
 ```{r}
+flights <- as.data.table(nycflights13::flights)
+airports <- as.data.table(nycflights13::airports)
+```
 
+Departures
+```{r}
+depart<-flights[,.(med_dep = median(dep_delay,na.rm=TRUE),
+           mean_dep = mean(dep_delay,na.rm=TRUE),
+           count = .N), by=origin]|>
+  _[count>10,]
+
+colnames(depart)[1] <- "faa"
+merge(x=depart, airports[,1:2], by = "faa", all.x = TRUE)|>
+  _[order(depart$mean_dep, decreasing = TRUE),c(5,2:4)]
+```
+
+Arrivals
+```{r}
+arrival<-flights[,.(med_dep = median(arr_delay,na.rm=TRUE),
+           mean_dep = mean(arr_delay,na.rm=TRUE),
+           count = .N), by=dest]|>
+  _[count>10,]
+
+colnames(arrival)[1] <- "faa"
+merge(x=arrival, airports[,1:2], by = "faa", all.x = TRUE)|>
+  _[order(mean_dep, decreasing = TRUE),c(5,2:4)]
+```
+
+#part b:
+How many flights did the aircraft model with the fastest average speed take? 
+
+```{r}
+planes <- as.data.table(nycflights13::planes[,c(1,5)])
+
+combined<-merge(x=flights, y=planes, by = "tailnum",all.y=TRUE)
+combined[!is.na(air_time),.(mph = distance/(air_time/60)), by = model]|>
+  _[,.(avg_mph = mean(mph,na.rm=TRUE),
+       count = .N),by = model]|>
+  _[order(avg_mph, decreasing = TRUE)]|>_[1,]
 
 ```
+
 
 
 
