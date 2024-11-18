@@ -4,7 +4,7 @@ author: "Nick Kim"
 format: html
 ---
 
-Link to my [github]("https://github.com/nick-kimm/STAT-506-HW-5") repository 
+Link to my [github](https://github.com/nick-kimm/STAT-506-HW-5) repository 
 
 ## Problem 1
 
